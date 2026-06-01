@@ -1,0 +1,141 @@
+type Conversation {
+  id: ID!
+  conversationType: ConversationType!
+  participants: [User!]!
+  messages(limit: Int, offset: Int): [Message!]!
+  lastMessage: Message
+  unreadCount: Int!
+  productOrder: ProductOrder
+  serviceRequest: ServiceRequest
+  foodOrder: FoodOrder
+  delivery: Delivery
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Message {
+  id: ID!
+  sender: User!
+  messageText: String!
+  messageStatus: MessageStatus!
+  attachments: [MessageAttachment!]!
+  isEdited: Boolean!
+  isDeleted: Boolean!
+  sentAt: DateTime!
+  editedAt: DateTime
+  deletedAt: DateTime
+  readBy: [MessageRead!]!
+}
+
+type MessageAttachment {
+  id: ID!
+  fileUrl: String!
+  fileName: String!
+  fileType: String!
+  fileSize: Int
+  uploadedAt: DateTime!
+}
+
+type MessageRead {
+  user: User!
+  readAt: DateTime!
+}
+
+type ConversationParticipant {
+  user: User!
+  joinedAt: DateTime!
+  lastReadAt: DateTime!
+}
+
+enum ConversationType {
+  MARKETPLACE
+  SERVICE
+  FOOD_ORDER
+  DELIVERY
+  GENERAL
+  SUPPORT
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+input SendMessageInput {
+  conversationId: ID
+  recipientId: ID
+  messageText: String!
+  attachments: [String!]
+  replyToMessageId: ID
+}
+
+input CreateConversationInput {
+  conversationType: ConversationType!
+  participantIds: [ID!]!
+  relatedOrderId: ID
+  relatedOrderType: String
+  initialMessage: String
+}
+
+type Subscription {
+  messageReceived(conversationId: ID): Message!
+  typingStatus(conversationId: ID!): TypingIndicator!
+  messageRead(conversationId: ID!): MessageReadReceipt!
+  conversationUpdated(conversationId: ID): Conversation!
+  userPresence(userId: ID): UserPresence!
+}
+
+type TypingIndicator {
+  conversationId: ID!
+  userId: ID!
+  isTyping: Boolean!
+  timestamp: DateTime!
+}
+
+type MessageReadReceipt {
+  messageId: ID!
+  userId: ID!
+  conversationId: ID!
+  readAt: DateTime!
+}
+
+type UserPresence {
+  userId: ID!
+  status: PresenceStatus!
+  lastSeen: DateTime
+}
+
+enum PresenceStatus {
+  ONLINE
+  OFFLINE
+  AWAY
+  BUSY
+}
+
+type Query {
+  myConversations(search: String, limit: Int, offset: Int): [Conversation!]!
+  conversation(id: ID!): Conversation
+  unreadMessageCount: Int!
+  searchMessages(conversationId: ID, search: String!, limit: Int): [Message!]!
+  pinnedConversations: [Conversation!]!
+  blockedUsers: [User!]!
+}
+
+type Mutation {
+  createConversation(input: CreateConversationInput!): Conversation!
+  sendMessage(input: SendMessageInput!): Message!
+  editMessage(messageId: ID!, messageText: String!): Message!
+  deleteMessage(messageId: ID!): Boolean!
+  markMessageRead(messageId: ID!): Boolean!
+  markConversationRead(conversationId: ID!): Boolean!
+  deleteConversation(conversationId: ID!): Boolean!
+  archiveConversation(conversationId: ID!): Boolean!
+  pinConversation(conversationId: ID!): Boolean!
+  startTyping(conversationId: ID!): Boolean!
+  stopTyping(conversationId: ID!): Boolean!
+  blockUser(userId: ID!): Boolean!
+  unblockUser(userId: ID!): Boolean!
+  reportMessage(messageId: ID!, reason: String!): Boolean!
+}

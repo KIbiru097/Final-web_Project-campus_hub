@@ -1,0 +1,168 @@
+type Service {
+  id: ID!
+  provider: User!
+  category: ServiceCategory!
+  title: String!
+  description: String!
+  priceType: PriceType!
+  basePrice: Float!
+  status: ServiceStatus!
+  availability: [ServiceAvailability!]!
+  images: [ServiceImage!]!
+  reviews: [ServiceReview!]!
+  averageRating: Float
+  reviewCount: Int
+  totalBookings: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ServiceCategory {
+  id: ID!
+  name: String!
+  description: String
+  serviceCount: Int
+}
+
+type ServiceAvailability {
+  id: ID!
+  dayOfWeek: Int!
+  startTime: String!
+  endTime: String!
+  isActive: Boolean!
+}
+
+type ServiceImage {
+  id: ID!
+  fileUrl: String!
+}
+
+type ServiceRequest {
+  id: ID!
+  service: Service!
+  requester: User!
+  provider: User!
+  bookingDate: String!
+  startTime: String!
+  endTime: String!
+  requestStatus: ServiceRequestStatus!
+  totalAmount: Float
+  notes: String
+  payment: Payment
+  completedAt: DateTime
+  cancelledAt: DateTime
+  cancellationReason: String
+  createdAt: DateTime!
+}
+
+type ServiceReview {
+  id: ID!
+  reviewer: User!
+  rating: Int!
+  reviewText: String
+  createdAt: DateTime!
+}
+
+enum PriceType {
+  FIXED
+  HOURLY
+  DAILY
+  NEGOTIABLE
+}
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+input CreateServiceInput {
+  categoryId: ID!
+  title: String!
+  description: String!
+  priceType: PriceType!
+  basePrice: Float!
+  availability: [ServiceAvailabilityInput!]!
+  images: [String!]
+}
+
+input ServiceAvailabilityInput {
+  dayOfWeek: Int!
+  startTime: String!
+  endTime: String!
+}
+
+input UpdateServiceInput {
+  title: String
+  description: String
+  basePrice: Float
+  status: ServiceStatus
+  priceType: PriceType
+}
+
+input ServiceFilterInput {
+  categoryId: ID
+  minPrice: Float
+  maxPrice: Float
+  search: String
+  providerId: ID
+  status: ServiceStatus
+  priceType: PriceType
+}
+
+input RequestServiceInput {
+  serviceId: ID!
+  bookingDate: String!
+  startTime: String!
+  endTime: String!
+  notes: String
+}
+
+type Query {
+  services(filter: ServiceFilterInput, sortBy: String, limit: Int, offset: Int): ServiceListResponse!
+  service(id: ID!): Service
+  serviceCategories: [ServiceCategory!]!
+  serviceCategory(id: ID!): ServiceCategory
+  myServices: [Service!]!
+  myServiceRequests: [ServiceRequest!]!
+  myServiceBookings(asProvider: Boolean): [ServiceRequest!]!
+  serviceAvailability(serviceId: ID!, startDate: String!, endDate: String!): [AvailableSlot!]!
+}
+
+type ServiceListResponse {
+  services: [Service!]!
+  total: Int!
+  hasMore: Boolean!
+}
+
+type AvailableSlot {
+  date: String!
+  startTime: String!
+  endTime: String!
+  isAvailable: Boolean!
+}
+
+type Mutation {
+  createService(input: CreateServiceInput!): Service!
+  updateService(id: ID!, input: UpdateServiceInput!): Service!
+  deleteService(id: ID!): Boolean!
+  addServiceAvailability(serviceId: ID!, input: ServiceAvailabilityInput!): ServiceAvailability!
+  removeServiceAvailability(availabilityId: ID!): Boolean!
+  requestService(input: RequestServiceInput!): ServiceRequest!
+  updateRequestStatus(requestId: ID!, status: ServiceRequestStatus!, rejectionReason: String): ServiceRequest!
+  completeService(requestId: ID!): Boolean!
+  cancelServiceRequest(requestId: ID!, reason: String!): Boolean!
+  reviewService(serviceId: ID!, rating: Int!, reviewText: String): ServiceReview!
+  reportService(serviceId: ID!, reason: String!, details: String): Boolean!
+}

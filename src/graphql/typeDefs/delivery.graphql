@@ -1,0 +1,123 @@
+type DeliveryProfile {
+  id: ID!
+  user: User!
+  vehicleType: String
+  licenseNumber: String
+  isAvailable: Boolean!
+  totalDeliveries: Int
+  averageRating: Float
+  currentLocation: Location
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Delivery {
+  id: ID!
+  deliveryPerson: User!
+  orderType: String!
+  orderId: ID!
+  pickupLocation: String!
+  pickupLocationCoordinates: Location
+  deliveryLocation: String!
+  deliveryLocationCoordinates: Location
+  deliveryStatus: DeliveryStatus!
+  assignedAt: DateTime
+  acceptedAt: DateTime
+  pickedUpAt: DateTime
+  deliveredAt: DateTime
+  cancelledAt: DateTime
+  cancellationReason: String
+  distance: Float
+  estimatedTime: Int
+  actualTime: Int
+  trackingHistory: [DeliveryTracking!]!
+  customerRating: Int
+  customerFeedback: String
+  createdAt: DateTime!
+}
+
+type DeliveryTracking {
+  id: ID!
+  status: DeliveryStatus!
+  location: Location
+  notes: String
+  timestamp: DateTime!
+}
+
+type Location {
+  latitude: Float!
+  longitude: Float!
+  address: String
+}
+
+type DeliveryStats {
+  totalDeliveries: Int!
+  completedDeliveries: Int!
+  cancelledDeliveries: Int!
+  averageDeliveryTime: Int!
+  averageRating: Float!
+  totalEarnings: Float!
+}
+
+enum DeliveryStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  PICKED_UP
+  IN_TRANSIT
+  ARRIVED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+input UpdateDeliveryProfileInput {
+  vehicleType: String
+  licenseNumber: String
+  isAvailable: Boolean
+  currentLocation: LocationInput
+}
+
+input LocationInput {
+  latitude: Float!
+  longitude: Float!
+  address: String
+}
+
+input AssignDeliveryInput {
+  orderType: String!
+  orderId: ID!
+  deliveryPersonId: ID!
+}
+
+input DeliveryTrackingInput {
+  status: DeliveryStatus!
+  location: LocationInput
+  notes: String
+}
+
+type Query {
+  myDeliveryProfile: DeliveryProfile
+  myDeliveries(status: DeliveryStatus, limit: Int, offset: Int): [Delivery!]!
+  pendingDeliveries(radius: Float, location: LocationInput): [Delivery!]!
+  activeDeliveries: [Delivery!]!
+  delivery(id: ID!): Delivery
+  availableDeliveryPersonnel(location: LocationInput, radius: Float): [DeliveryProfile!]!
+  deliveryStats: DeliveryStats!
+  deliveryTracking(deliveryId: ID!): [DeliveryTracking!]!
+}
+
+type Mutation {
+  createDeliveryProfile(input: UpdateDeliveryProfileInput!): DeliveryProfile!
+  updateDeliveryProfile(input: UpdateDeliveryProfileInput!): DeliveryProfile!
+  assignDelivery(input: AssignDeliveryInput!): Delivery!
+  acceptDelivery(deliveryId: ID!): Boolean!
+  rejectDelivery(deliveryId: ID!, reason: String!): Boolean!
+  startPickup(deliveryId: ID!): Boolean!
+  confirmPickup(deliveryId: ID!): Boolean!
+  updateDeliveryStatus(deliveryId: ID!, status: DeliveryStatus!, location: LocationInput, notes: String): Delivery!
+  addTrackingUpdate(deliveryId: ID!, input: DeliveryTrackingInput!): DeliveryTracking!
+  cancelDelivery(deliveryId: ID!, reason: String!): Boolean!
+  rateDelivery(deliveryId: ID!, rating: Int!, feedback: String): Boolean!
+  optimizeRoute(deliveryIds: [ID!]!): [Location!]!
+}

@@ -1,0 +1,191 @@
+type Product {
+  id: ID!
+  seller: User!
+  category: ProductCategory!
+  title: String!
+  description: String
+  price: Float!
+  stockQuantity: Int!
+  status: String!
+  condition: ProductCondition!
+  allowDelivery: Boolean!
+  allowMeetup: Boolean!
+  images: [ProductImage!]!
+  reviews: [ProductReview!]!
+  averageRating: Float
+  reviewCount: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductCategory {
+  id: ID!
+  name: String!
+  description: String
+  productCount: Int
+  products(filter: ProductFilterInput, limit: Int, offset: Int): [Product!]!
+}
+
+type ProductImage {
+  id: ID!
+  imageUrl: String!
+  isPrimary: Boolean!
+}
+
+type ProductReview {
+  id: ID!
+  reviewer: User!
+  rating: Int!
+  reviewText: String
+  createdAt: DateTime!
+}
+
+type ProductOrder {
+  id: ID!
+  buyer: User!
+  seller: User!
+  items: [ProductOrderItem!]!
+  orderStatus: OrderStatus!
+  totalAmount: Float!
+  shippingAddress: String
+  payment: Payment
+  delivery: Delivery
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductOrderItem {
+  id: ID!
+  product: Product!
+  quantity: Int!
+  unitPrice: Float!
+  subtotal: Float!
+}
+
+type Wishlist {
+  id: ID!
+  user: User!
+  name: String!
+  items: [WishlistItem!]!
+  createdAt: DateTime!
+}
+
+type WishlistItem {
+  id: ID!
+  product: Product!
+  addedAt: DateTime!
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+input CreateProductInput {
+  categoryId: ID!
+  title: String!
+  description: String
+  price: Float!
+  stockQuantity: Int!
+  condition: ProductCondition!
+  allowDelivery: Boolean
+  allowMeetup: Boolean
+  images: [String!]!
+}
+
+input UpdateProductInput {
+  title: String
+  description: String
+  price: Float
+  stockQuantity: Int
+  status: String
+  condition: ProductCondition
+  allowDelivery: Boolean
+  allowMeetup: Boolean
+}
+
+input CreateOrderInput {
+  productIds: [ID!]!
+  quantities: [Int!]!
+  shippingAddress: String
+  fulfillmentMethod: String!
+}
+
+input ProductFilterInput {
+  categoryId: ID
+  minPrice: Float
+  maxPrice: Float
+  condition: ProductCondition
+  search: String
+  sellerId: ID
+  status: String
+}
+
+type Query {
+  products(filter: ProductFilterInput, sortBy: String, sortOrder: String, limit: Int, offset: Int): ProductListResponse!
+  product(id: ID!): Product
+  categories: [ProductCategory!]!
+  category(id: ID!): ProductCategory
+  myProducts: [Product!]!
+  myOrders: [ProductOrder!]!
+  mySales: [ProductOrder!]!
+  wishlist: Wishlist!
+  featuredProducts(limit: Int): [Product!]!
+  popularProducts(limit: Int): [Product!]!
+}
+
+type ProductListResponse {
+  products: [Product!]!
+  total: Int!
+  hasMore: Boolean!
+  facets: ProductFacets
+}
+
+type ProductFacets {
+  categories: [CategoryCount!]!
+  conditions: [ConditionCount!]!
+  priceRange: PriceRange!
+}
+
+type CategoryCount {
+  categoryId: ID!
+  categoryName: String!
+  count: Int!
+}
+
+type ConditionCount {
+  condition: ProductCondition!
+  count: Int!
+}
+
+type PriceRange {
+  min: Float!
+  max: Float!
+}
+
+type Mutation {
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(id: ID!, input: UpdateProductInput!): Product!
+  deleteProduct(id: ID!): Boolean!
+  addToWishlist(productId: ID!): WishlistItem!
+  removeFromWishlist(productId: ID!): Boolean!
+  createOrder(input: CreateOrderInput!): ProductOrder!
+  cancelOrder(orderId: ID!): Boolean!
+  updateOrderStatus(orderId: ID!, status: OrderStatus!): ProductOrder!
+  reviewProduct(productId: ID!, rating: Int!, reviewText: String): ProductReview!
+  deleteReview(productId: ID!): Boolean!
+  reportProduct(productId: ID!, reason: String!, details: String): Boolean!
+}
