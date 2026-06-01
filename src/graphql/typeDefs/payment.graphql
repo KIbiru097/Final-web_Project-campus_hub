@@ -1,44 +1,12 @@
-"""
-Payment System - Currently using MOCK implementation for testing.
-All payment methods are simulated and no real transactions occur.
-"""
 type Payment {
   id: ID!
   payer: User!
   amount: Float!
-  paymentMethod: PaymentMethod!
-  paymentStatus: PaymentStatus!
+  paymentMethod: String!
+  paymentStatus: String!
   transactionReference: String
-  metadata: JSON
-  paidAt: DateTime
-  refundedAt: DateTime
-  refundAmount: Float
-  refundReason: String
-  adminNotes: String
-  createdAt: DateTime!
-}
-
-type SavedPaymentMethod {
-  id: ID!
-  user: User!
-  paymentMethod: PaymentMethod!
-  maskedCardNumber: String
-  cardType: String
-  expiryMonth: Int
-  expiryYear: Int
-  isDefault: Boolean!
-  lastUsed: DateTime
-  createdAt: DateTime!
-}
-
-type Transaction {
-  id: ID!
-  payment: Payment!
-  orderType: String!
-  orderId: ID!
-  status: String!
-  details: JSON
-  createdAt: DateTime!
+  paidAt: String
+  createdAt: String!
 }
 
 enum PaymentMethod {
@@ -46,81 +14,32 @@ enum PaymentMethod {
   TELEBIRR
   CASH
   BANK_TRANSFER
-  CARD
 }
 
 enum PaymentStatus {
   PENDING
-  PROCESSING
   PAID
   FAILED
   REFUNDED
-  CANCELLED
-  EXPIRED
 }
 
 input InitiatePaymentInput {
   orderType: String!
   orderId: ID!
   paymentMethod: PaymentMethod!
-  savePaymentMethod: Boolean
-}
-
-input SavePaymentMethodInput {
-  paymentMethod: PaymentMethod!
-  maskedCardNumber: String
-  cardType: String
-  expiryMonth: Int
-  expiryYear: Int
-  isDefault: Boolean
 }
 
 type PaymentPayload {
   payment: Payment!
-  redirectUrl: String
-  checkoutUrl: String
   reference: String
 }
 
-type PaymentSummary {
-  totalPaid: Float!
-  totalRefunded: Float!
-  pendingPayments: Float!
-  successfulPayments: Int!
-  failedPayments: Int!
-  recentPayments: [Payment!]!
-}
-
-type Query {
-  myPayments(status: PaymentStatus, limit: Int, offset: Int): [Payment!]!
+extend type Query {
+  myPayments(limit: Int): [Payment!]!
   payment(id: ID!): Payment
-  paymentByReference(reference: String!): Payment
-  mySavedPaymentMethods: [SavedPaymentMethod!]!
-  paymentSummary: PaymentSummary!
-  transactionHistory(limit: Int, offset: Int): [Transaction!]!
 }
 
-type Mutation {
-  """
-  Initiate a payment. Currently using MOCK implementation.
-  No real money is transferred. For testing only.
-  """
+extend type Mutation {
   initiatePayment(input: InitiatePaymentInput!): PaymentPayload!
-  
-  """
-  Verify a payment status. With mock, this returns the mocked status.
-  """
   verifyPayment(reference: String!): Payment!
-  cancelPayment(paymentId: ID!): Boolean!
-  savePaymentMethod(input: SavePaymentMethodInput!): SavedPaymentMethod!
-  deletePaymentMethod(id: ID!): Boolean!
-  setDefaultPaymentMethod(id: ID!): Boolean!
-  requestRefund(paymentId: ID!, reason: String!, amount: Float): Payment!
-  processRefund(refundId: ID!, approved: Boolean!, adminNotes: String): Payment!
-  
-  """
-  Mock webhook endpoint for simulating payment updates.
-  Use this for testing payment callbacks.
-  """
-  webhookPayment(provider: String!, payload: JSON!): Boolean!
 }

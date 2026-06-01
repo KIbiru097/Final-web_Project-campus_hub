@@ -1,220 +1,40 @@
 type Cafe {
   id: ID!
-  owner: User!
   name: String!
   description: String
   location: String!
-  logoUrl: String
-  status: CafeStatus!
   rating: Float
-  reviewCount: Int
-  menuItems(filter: FoodFilterInput, limit: Int, offset: Int): [MenuItem!]!
-  staff: [CafeStaff!]!
-  averageRating: Float
-  totalOrders: Int
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type CafeStaff {
-  id: ID!
-  user: User!
-  position: String
-  hiredAt: DateTime!
-}
-
-type MenuCategory {
-  id: ID!
-  name: String!
-  description: String
-  menuItemCount: Int
 }
 
 type MenuItem {
   id: ID!
   cafe: Cafe!
-  category: MenuCategory!
   name: String!
   description: String
   price: Float!
-  imageUrl: String
-  isAvailable: Boolean!
-  isPopular: Boolean
-  reviews: [FoodReview!]!
-  averageRating: Float
-  reviewCount: Int
-  totalOrders: Int
-  createdAt: DateTime!
-  updatedAt: DateTime!
 }
 
 type FoodOrder {
   id: ID!
   student: User!
   cafe: Cafe!
-  items: [FoodOrderItem!]!
-  orderStatus: FoodOrderStatus!
-  fulfillmentMethod: FulfillmentMethod!
   totalAmount: Float!
-  specialInstructions: String
-  payment: Payment
-  delivery: Delivery
-  estimatedReadyTime: DateTime
-  actualReadyTime: DateTime
-  completedAt: DateTime
-  cancelledAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  status: String!
+  createdAt: String!
 }
 
-type FoodOrderItem {
-  id: ID!
-  menuItem: MenuItem!
-  quantity: Int!
-  unitPrice: Float!
-  subtotal: Float!
-  specialInstructions: String
+extend type Query {
+  cafes: [Cafe!]!
+  cafe(id: ID!): Cafe
+  menuItems(cafeId: ID): [MenuItem!]!
+  myFoodOrders: [FoodOrder!]!
 }
 
-type FoodReview {
-  id: ID!
-  menuItem: MenuItem!
-  reviewer: User!
-  rating: Int!
-  reviewText: String
-  createdAt: DateTime!
-}
-
-type CafeReview {
-  id: ID!
-  cafe: Cafe!
-  reviewer: User!
-  rating: Int!
-  reviewText: String
-  createdAt: DateTime!
-}
-
-enum CafeStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING_APPROVAL
-}
-
-enum FoodOrderStatus {
-  PENDING
-  CONFIRMED
-  PREPARING
-  READY
-  COMPLETED
-  CANCELLED
-  REJECTED
-}
-
-enum FulfillmentMethod {
-  PICKUP
-  DELIVERY
-  DINE_IN
-}
-
-input CreateCafeInput {
-  name: String!
-  description: String
-  location: String!
-  logoUrl: String
-}
-
-input UpdateCafeInput {
-  name: String
-  description: String
-  location: String
-  logoUrl: String
-  status: CafeStatus
-}
-
-input CreateMenuItemInput {
-  cafeId: ID!
-  categoryId: ID!
-  name: String!
-  description: String
-  price: Float!
-  imageUrl: String
-  isAvailable: Boolean
-}
-
-input UpdateMenuItemInput {
-  name: String
-  description: String
-  price: Float
-  imageUrl: String
-  isAvailable: Boolean
-  categoryId: ID
-}
-
-input PlaceFoodOrderInput {
-  cafeId: ID!
-  items: [OrderItemInput!]!
-  fulfillmentMethod: FulfillmentMethod!
-  specialInstructions: String
-  paymentMethod: String!
-  deliveryAddress: String
+extend type Mutation {
+  placeFoodOrder(cafeId: ID!, items: [OrderItemInput!]!): FoodOrder!
 }
 
 input OrderItemInput {
   menuItemId: ID!
   quantity: Int!
-  specialInstructions: String
-}
-
-input FoodFilterInput {
-  cafeId: ID
-  categoryId: ID
-  minPrice: Float
-  maxPrice: Float
-  search: String
-  isAvailable: Boolean
-  isPopular: Boolean
-}
-
-type Query {
-  cafes(status: CafeStatus, search: String, limit: Int, offset: Int): CafeListResponse!
-  cafe(id: ID!): Cafe
-  menuCategories: [MenuCategory!]!
-  menuItems(filter: FoodFilterInput, sortBy: String, limit: Int, offset: Int): MenuItemListResponse!
-  menuItem(id: ID!): MenuItem
-  myFoodOrders(status: FoodOrderStatus, limit: Int, offset: Int): [FoodOrder!]!
-  cafeOrders(cafeId: ID!, status: FoodOrderStatus, limit: Int, offset: Int): [FoodOrder!]!
-  popularMenuItems(cafeId: ID, limit: Int): [MenuItem!]!
-  todaySpecials(cafeId: ID): [MenuItem!]!
-}
-
-type CafeListResponse {
-  cafes: [Cafe!]!
-  total: Int!
-  hasMore: Boolean!
-}
-
-type MenuItemListResponse {
-  menuItems: [MenuItem!]!
-  total: Int!
-  hasMore: Boolean!
-}
-
-type Mutation {
-  createCafe(input: CreateCafeInput!): Cafe!
-  updateCafe(id: ID!, input: UpdateCafeInput!): Cafe!
-  deleteCafe(id: ID!): Boolean!
-  addCafeStaff(cafeId: ID!, userId: ID!, position: String): CafeStaff!
-  removeCafeStaff(staffId: ID!): Boolean!
-  createMenuItem(input: CreateMenuItemInput!): MenuItem!
-  updateMenuItem(id: ID!, input: UpdateMenuItemInput!): MenuItem!
-  deleteMenuItem(id: ID!): Boolean!
-  placeFoodOrder(input: PlaceFoodOrderInput!): FoodOrder!
-  updateFoodOrderStatus(orderId: ID!, status: FoodOrderStatus!): FoodOrder!
-  cancelFoodOrder(orderId: ID!, reason: String): Boolean!
-  reviewMenuItem(menuItemId: ID!, rating: Int!, reviewText: String): FoodReview!
-  reviewCafe(cafeId: ID!, rating: Int!, reviewText: String): CafeReview!
-  deleteFoodReview(reviewId: ID!): Boolean!
-  reportCafe(cafeId: ID!, reason: String!, details: String): Boolean!
-  reportMenuItem(menuItemId: ID!, reason: String!, details: String): Boolean!
 }

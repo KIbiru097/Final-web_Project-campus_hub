@@ -1,71 +1,19 @@
-scalar DateTime
-scalar JSON
-
 type User {
   id: ID!
   firstName: String!
   lastName: String!
   email: String!
   phone: String
-  accountStatus: AccountStatus!
+  accountStatus: String!
   profilePictureUrl: String
-  lastLogin: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  roles: [Role!]!
-  studentProfile: StudentProfile
-  addresses: [UserAddress!]!
-  averageRating: Float
-  totalReviews: Int
+  lastLogin: String
+  createdAt: String!
+  updatedAt: String!
 }
 
-type StudentProfile {
-  id: ID!
-  studentId: String!
-  department: String
-  yearLevel: Int
-  gender: GenderType
-  verificationStatus: VerificationStatus!
-  idCardImageUrl: String
-  ocrExtractedText: String
-  verificationDate: DateTime
-  createdAt: DateTime!
-}
-
-type Role {
-  id: ID!
-  roleName: String!
-  description: String
-}
-
-type UserAddress {
-  id: ID!
-  addressLine1: String!
-  addressLine2: String
-  city: String
-  state: String
-  postalCode: String
-  country: String!
-  isDefault: Boolean!
-  createdAt: DateTime!
-}
-
-enum AccountStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  DEACTIVATED
-}
-
-enum VerificationStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-}
-
-enum GenderType {
-  MALE
-  FEMALE
+type AuthPayload {
+  token: String!
+  user: User!
 }
 
 input RegisterInput {
@@ -74,11 +22,6 @@ input RegisterInput {
   email: String!
   phone: String!
   password: String!
-  studentId: String!
-  department: String
-  yearLevel: Int
-  gender: GenderType
-  idCardImage: String!
 }
 
 input LoginInput {
@@ -86,64 +29,12 @@ input LoginInput {
   password: String!
 }
 
-input UpdateProfileInput {
-  firstName: String
-  lastName: String
-  phone: String
-  profilePictureUrl: String
-}
-
-input AddAddressInput {
-  addressLine1: String!
-  addressLine2: String
-  city: String
-  state: String
-  postalCode: String
-  country: String
-  isDefault: Boolean
-}
-
-type AuthPayload {
-  accessToken: String!
-  refreshToken: String!
-  user: User!
-}
-
-type Query {
+extend type Query {
   me: User!
   user(id: ID!): User
-  users(role: String, status: AccountStatus, limit: Int, offset: Int): UserListResponse!
-  pendingVerifications: [StudentProfile!]!
-  userStats: UserStats!
 }
 
-type UserListResponse {
-  users: [User!]!
-  total: Int!
-  hasMore: Boolean!
-}
-
-type UserStats {
-  totalUsers: Int!
-  activeUsers: Int!
-  pendingVerifications: Int!
-  verifiedStudents: Int!
-}
-
-type Mutation {
+extend type Mutation {
   register(input: RegisterInput!): AuthPayload!
   login(input: LoginInput!): AuthPayload!
-  refreshToken(refreshToken: String!): AuthPayload!
-  logout: Boolean!
-  updateProfile(input: UpdateProfileInput!): User!
-  changePassword(oldPassword: String!, newPassword: String!): Boolean!
-  requestPasswordReset(email: String!): Boolean!
-  resetPassword(token: String!, newPassword: String!): Boolean!
-  addAddress(input: AddAddressInput!): UserAddress!
-  updateAddress(id: ID!, input: AddAddressInput!): UserAddress!
-  deleteAddress(id: ID!): Boolean!
-  verifyStudent(studentProfileId: ID!, approved: Boolean!, rejectionReason: String): StudentProfile!
-  updateUserStatus(userId: ID!, status: AccountStatus!): User!
-  assignRole(userId: ID!, roleName: String!): User!
-  removeRole(userId: ID!, roleName: String!): User!
 }
