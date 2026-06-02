@@ -16,12 +16,26 @@ type AuthPayload {
   user: User!
 }
 
+type UpdateUserResponse {
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+type ChangePasswordResponse {
+  success: Boolean!
+  message: String!
+}
+
 input RegisterInput {
+  email: String!
+  password: String!
   firstName: String!
   lastName: String!
-  email: String!
   phone: String!
-  password: String!
+  university: String
+  department: String
+  role: String
 }
 
 input LoginInput {
@@ -29,12 +43,27 @@ input LoginInput {
   password: String!
 }
 
-extend type Query {
-  me: User!
-  user(id: ID!): User
+input UpdateUserInput {
+  firstName: String
+  lastName: String
+  phone: String
+  profilePictureUrl: String
 }
 
-extend type Mutation {
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+type Query {
+  me: User!
+  getUser(id: ID!): User
+  users: [User!]!
+}
+
+type Mutation {
   register(input: RegisterInput!): AuthPayload!
   login(input: LoginInput!): AuthPayload!
+  updateUser(input: UpdateUserInput!): UpdateUserResponse!
+  changePassword(input: ChangePasswordInput!): ChangePasswordResponse!
 }
