@@ -1,45 +1,21 @@
 type Payment {
   id: ID!
-  payer: User!
+  userId: ID!
   amount: Float!
+  currency: String!
   paymentMethod: String!
-  paymentStatus: String!
-  transactionReference: String
-  paidAt: String
+  paymentGateway: String
+  transactionRef: String!
+  status: String!
   createdAt: String!
 }
 
-enum PaymentMethod {
-  CHAPA
-  TELEBIRR
-  CASH
-  BANK_TRANSFER
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
-
-input InitiatePaymentInput {
-  orderType: String!
-  orderId: ID!
-  paymentMethod: PaymentMethod!
-}
-
-type PaymentPayload {
-  payment: Payment!
-  reference: String
-}
-
 extend type Query {
-  myPayments(limit: Int): [Payment!]!
+  myPayments: [Payment!]!
   payment(id: ID!): Payment
 }
 
 extend type Mutation {
-  initiatePayment(input: InitiatePaymentInput!): PaymentPayload!
-  verifyPayment(reference: String!): Payment!
+  initiatePayment(orderId: ID!, paymentMethod: String!): Payment!
+  verifyPayment(transactionRef: String!): Payment!
 }

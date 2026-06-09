@@ -1,0 +1,39 @@
+type Order {
+  id: ID!
+  orderNumber: String!
+  userId: ID!
+  restaurantId: ID!
+  items: JSON!
+  totalAmount: Float!
+  deliveryAddress: String!
+  status: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type OrderResponse {
+  success: Boolean!
+  message: String!
+  order: Order
+}
+
+input CreateOrderInput {
+  restaurantId: ID!
+  items: JSON!
+  deliveryAddress: String!
+}
+
+input UpdateOrderStatusInput {
+  status: String!
+}
+
+extend type Query {
+  myOrders: [Order!]!
+  order(id: ID!): Order
+}
+
+extend type Mutation {
+  createOrder(input: CreateOrderInput!): OrderResponse!
+  updateOrderStatus(id: ID!, input: UpdateOrderStatusInput!): OrderResponse!
+  cancelOrder(id: ID!): OrderResponse!
+}

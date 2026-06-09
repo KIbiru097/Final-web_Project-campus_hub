@@ -1,10 +1,24 @@
-const { verifyToken } = require('../config/auth');
+const jwt = require('jsonwebtoken');
+
+const verifyToken = (token) => {
+  if (!token) {
+    return null;
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (error) {
+    console.error('Token verification failed:', error.message);
+    return null;
+  }
+};
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   
-  if (authHeader) {
-    const token = authHeader.replace('Bearer ', '');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
     const user = verifyToken(token);
     req.user = user;
   }
@@ -25,7 +39,7 @@ const requireRole = (roles) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
-    const hasRole = roles.some(role => req.user.roles?.includes(role));
+    const hasRole = roles.includes(req.user.role);
     if (!hasRole) {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
@@ -34,4 +48,4 @@ const requireRole = (roles) => {
   };
 };
 
-module.exports = { authMiddleware, requireAuth, requireRole };
+module.exports = { verifyToken, authMiddleware, requireAuth, requireRole };

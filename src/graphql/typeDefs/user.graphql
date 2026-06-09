@@ -5,6 +5,7 @@ type User {
   email: String!
   phone: String
   accountStatus: String!
+  role: String
   profilePictureUrl: String
   lastLogin: String
   createdAt: String!
@@ -61,6 +62,236 @@ type Query {
   users: [User!]!
 }
 
+type Cafe {
+  id: ID!
+  name: String!
+  description: String
+  location: String
+  status: String
+  logoUrl: String
+  createdAt: String
+}
+
+extend type Query {
+  me: User!
+  users: [User!]!
+  cafes: [Cafe!]!
+  cafe(id: ID!): Cafe
+}
+# Menu Item Types
+type MenuItem {
+  id: ID!
+  cafeId: ID!
+  categoryId: ID
+  name: String!
+  description: String
+  price: Float!
+  imageUrl: String
+  isAvailable: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Food Order Types
+type FoodOrder {
+  id: ID!
+  studentId: ID!
+  cafeId: ID!
+  orderStatus: String!
+  fulfillmentMethod: String!
+  totalAmount: Float!
+  specialInstructions: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Product Types
+type Product {
+  id: ID!
+  sellerId: ID!
+  categoryId: ID
+  title: String!
+  description: String
+  price: Float!
+  stockQuantity: Int!
+  status: String!
+  condition: String
+  imageUrl: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Message Types
+type Conversation {
+  id: ID!
+  conversationType: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Message {
+  id: ID!
+  conversationId: ID!
+  senderId: ID!
+  messageText: String!
+  messageStatus: String!
+  sentAt: String!
+  editedAt: String
+}
+
+# Payment Types
+type Payment {
+  id: ID!
+  payerId: ID!
+  amount: Float!
+  paymentMethod: String!
+  paymentStatus: String!
+  transactionReference: String!
+  foodOrderId: ID
+  productOrderId: ID
+  paidAt: String
+  createdAt: String!
+}
+
+# Extend Query
+extend type Query {
+  # Menu Item queries
+  menuItems(cafeId: ID, categoryId: ID, isAvailable: Boolean): [MenuItem!]!
+  menuItem(id: ID!): MenuItem
+  
+  # Food Order queries
+  foodOrders(status: String, limit: Int, offset: Int): [FoodOrder!]!
+  foodOrder(id: ID!): FoodOrder
+  foodOrderItems(orderId: ID!): [FoodOrderItem!]!
+  
+  # Product queries
+  products(categoryId: ID, search: String, minPrice: Float, maxPrice: Float, status: String, limit: Int, offset: Int): [Product!]!
+  product(id: ID!): Product
+  myProducts(status: String, limit: Int, offset: Int): [Product!]!
+  
+  # Message queries
+  myConversations(limit: Int, offset: Int): [Conversation!]!
+  conversation(id: ID!): Conversation
+  conversationMessages(conversationId: ID!, limit: Int, offset: Int): [Message!]!
+  unreadMessageCount: Int!
+  
+  # Payment queries
+  myPayments(limit: Int, offset: Int): [Payment!]!
+  payment(id: ID!): Payment
+}
+
+# Extend Mutation
+extend type Mutation {
+  # Menu Item mutations
+  createMenuItem(input: CreateMenuItemInput!): MenuItemResponse!
+  updateMenuItem(id: ID!, input: UpdateMenuItemInput!): MenuItemResponse!
+  deleteMenuItem(id: ID!): MenuItemResponse!
+  
+  # Food Order mutations
+  createFoodOrder(input: CreateFoodOrderInput!): FoodOrderResponse!
+  updateFoodOrderStatus(id: ID!, status: String!): FoodOrderResponse!
+  cancelFoodOrder(id: ID!): FoodOrderResponse!
+  
+  # Product mutations
+  createProduct(input: CreateProductInput!): ProductResponse!
+  updateProduct(id: ID!, input: UpdateProductInput!): ProductResponse!
+  deleteProduct(id: ID!): ProductResponse!
+  
+  # Message mutations
+  createConversation(participantIds: [ID!]!): Conversation!
+  sendMessage(conversationId: ID!, content: String!): Message!
+  markMessageRead(messageId: ID!): Boolean!
+  deleteMessage(messageId: ID!): Boolean!
+  
+  # Payment mutations
+  initiatePayment(input: InitiatePaymentInput!): Payment!
+  verifyPayment(transactionRef: String!): Payment!
+}
+
+# Input Types
+input CreateMenuItemInput {
+  cafeId: ID!
+  categoryId: ID
+  name: String!
+  description: String
+  price: Float!
+  imageUrl: String
+  isAvailable: Boolean
+}
+
+input UpdateMenuItemInput {
+  name: String
+  description: String
+  price: Float
+  imageUrl: String
+  isAvailable: Boolean
+}
+
+input CreateFoodOrderInput {
+  cafeId: ID!
+  items: [FoodOrderItemInput!]!
+  specialInstructions: String
+  fulfillmentMethod: String
+}
+
+input FoodOrderItemInput {
+  menuItemId: ID!
+  quantity: Int!
+}
+
+input CreateProductInput {
+  title: String!
+  description: String
+  price: Float!
+  condition: String
+  categoryId: ID
+  imageUrl: String
+  stockQuantity: Int
+}
+
+input UpdateProductInput {
+  title: String
+  description: String
+  price: Float
+  condition: String
+  status: String
+  imageUrl: String
+  stockQuantity: Int
+}
+
+input InitiatePaymentInput {
+  orderType: String!
+  orderId: ID!
+  paymentMethod: String!
+}
+
+# Response Types
+type MenuItemResponse {
+  success: Boolean!
+  message: String!
+  menuItem: MenuItem
+}
+
+type FoodOrderResponse {
+  success: Boolean!
+  message: String!
+  order: FoodOrder
+}
+
+type ProductResponse {
+  success: Boolean!
+  message: String!
+  product: Product
+}
+
+type FoodOrderItem {
+  id: ID!
+  orderId: ID!
+  menuItemId: ID!
+  quantity: Int!
+  unitPrice: Float!
+  subtotal: Float!
+}
 type Mutation {
   register(input: RegisterInput!): AuthPayload!
   login(input: LoginInput!): AuthPayload!

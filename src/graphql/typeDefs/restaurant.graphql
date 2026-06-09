@@ -1,0 +1,49 @@
+type Restaurant {
+  id: ID!
+  name: String!
+  description: String
+  address: String!
+  phone: String
+  deliveryFee: Float!
+  isActive: Boolean!
+  rating: Float
+  logoUrl: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type RestaurantResponse {
+  success: Boolean!
+  message: String!
+  restaurant: Restaurant
+}
+
+input CreateRestaurantInput {
+  name: String!
+  description: String
+  address: String!
+  phone: String
+  deliveryFee: Float
+  logoUrl: String
+}
+
+input UpdateRestaurantInput {
+  name: String
+  description: String
+  address: String
+  phone: String
+  deliveryFee: Float
+  isActive: Boolean
+  logoUrl: String
+}
+
+extend type Query {
+  restaurants: [Restaurant!]!
+  restaurant(id: ID!): Restaurant
+}
+
+extend type Mutation {
+  createRestaurant(input: CreateRestaurantInput!): RestaurantResponse!
+  updateRestaurant(id: ID!, input: UpdateRestaurantInput!): RestaurantResponse!
+  deleteRestaurant(id: ID!): RestaurantResponse!
+}

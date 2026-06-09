@@ -1,40 +1,53 @@
-type Cafe {
+type FoodItem {
   id: ID!
-  name: String!
-  description: String
-  location: String!
-  rating: Float
-}
-
-type MenuItem {
-  id: ID!
-  cafe: Cafe!
+  restaurantId: ID!
   name: String!
   description: String
   price: Float!
+  discountPrice: Float
+  isAvailable: Boolean!
+  category: String
+  imageUrl: String
+  preparationTime: Int
+  createdAt: String!
+  updatedAt: String!
 }
 
-type FoodOrder {
-  id: ID!
-  student: User!
-  cafe: Cafe!
-  totalAmount: Float!
-  status: String!
-  createdAt: String!
+type FoodItemResponse {
+  success: Boolean!
+  message: String!
+  foodItem: FoodItem
+}
+
+input CreateFoodItemInput {
+  restaurantId: ID!
+  name: String!
+  description: String
+  price: Float!
+  discountPrice: Float
+  category: String
+  imageUrl: String
+  preparationTime: Int
+}
+
+input UpdateFoodItemInput {
+  name: String
+  description: String
+  price: Float
+  discountPrice: Float
+  isAvailable: Boolean
+  category: String
+  imageUrl: String
+  preparationTime: Int
 }
 
 extend type Query {
-  cafes: [Cafe!]!
-  cafe(id: ID!): Cafe
-  menuItems(cafeId: ID): [MenuItem!]!
-  myFoodOrders: [FoodOrder!]!
+  foodItems(restaurantId: ID, category: String, isAvailable: Boolean): [FoodItem!]!
+  foodItem(id: ID!): FoodItem
 }
 
 extend type Mutation {
-  placeFoodOrder(cafeId: ID!, items: [OrderItemInput!]!): FoodOrder!
-}
-
-input OrderItemInput {
-  menuItemId: ID!
-  quantity: Int!
+  createFoodItem(input: CreateFoodItemInput!): FoodItemResponse!
+  updateFoodItem(id: ID!, input: UpdateFoodItemInput!): FoodItemResponse!
+  deleteFoodItem(id: ID!): FoodItemResponse!
 }

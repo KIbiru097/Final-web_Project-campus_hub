@@ -1,27 +1,21 @@
 type Delivery {
   id: ID!
-  deliveryPerson: User!
-  orderType: String!
   orderId: ID!
+  deliveryPersonId: ID!
+  status: String!
   pickupLocation: String!
   deliveryLocation: String!
-  deliveryStatus: String!
-  createdAt: String!
-}
-
-enum DeliveryStatus {
-  PENDING
-  ASSIGNED
-  PICKED_UP
-  DELIVERED
-  CANCELLED
+  assignedAt: String!
+  pickedUpAt: String
+  deliveredAt: String
 }
 
 extend type Query {
   myDeliveries: [Delivery!]!
-  delivery(id: ID!): Delivery
+  pendingDeliveries: [Delivery!]!
 }
 
 extend type Mutation {
+  assignDelivery(orderId: ID!, deliveryPersonId: ID!): Delivery!
   updateDeliveryStatus(deliveryId: ID!, status: String!): Delivery!
 }

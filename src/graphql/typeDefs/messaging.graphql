@@ -2,23 +2,33 @@ type Conversation {
   id: ID!
   participants: [User!]!
   lastMessage: Message
+  unreadCount: Int
   createdAt: String!
+  updatedAt: String!
 }
 
 type Message {
   id: ID!
+  conversationId: ID!
+  senderId: ID!
   sender: User!
   content: String!
   isRead: Boolean!
+  readAt: String
   createdAt: String!
 }
 
 extend type Query {
   myConversations: [Conversation!]!
   conversation(id: ID!): Conversation
+  conversationMessages(conversationId: ID!, limit: Int, offset: Int): [Message!]!
+  unreadMessageCount: Int!
 }
 
 extend type Mutation {
-  sendMessage(conversationId: ID!, content: String!): Message!
   createConversation(participantIds: [ID!]!): Conversation!
+  sendMessage(conversationId: ID!, content: String!): Message!
+  markMessageRead(messageId: ID!): Boolean!
+  markConversationRead(conversationId: ID!): Boolean!
+  deleteMessage(messageId: ID!): Boolean!
 }

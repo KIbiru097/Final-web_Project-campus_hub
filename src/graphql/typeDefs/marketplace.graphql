@@ -1,48 +1,47 @@
 type Product {
   id: ID!
-  seller: User!
+  sellerId: ID!
   title: String!
   description: String
   price: Float!
   condition: String!
   status: String!
-  images: [String!]
+  imageUrl: String
   createdAt: String!
+  updatedAt: String!
 }
 
-type ProductCategory {
-  id: ID!
-  name: String!
-  description: String
-}
-
-type ProductOrder {
-  id: ID!
-  buyer: User!
-  seller: User!
-  totalAmount: Float!
-  orderStatus: String!
-  createdAt: String!
+type ProductResponse {
+  success: Boolean!
+  message: String!
+  product: Product
 }
 
 input CreateProductInput {
   title: String!
   description: String
   price: Float!
-  categoryId: ID!
   condition: String!
+  imageUrl: String
+}
+
+input UpdateProductInput {
+  title: String
+  description: String
+  price: Float
+  condition: String
+  status: String
+  imageUrl: String
 }
 
 extend type Query {
-  products(limit: Int, offset: Int): [Product!]!
+  products: [Product!]!
   product(id: ID!): Product
   myProducts: [Product!]!
-  myOrders: [ProductOrder!]!
 }
 
 extend type Mutation {
-  createProduct(input: CreateProductInput!): Product!
-  updateProduct(id: ID!, title: String, description: String, price: Float): Product!
-  deleteProduct(id: ID!): Boolean!
-  createOrder(productId: ID!, quantity: Int!, shippingAddress: String!): ProductOrder!
+  createProduct(input: CreateProductInput!): ProductResponse!
+  updateProduct(id: ID!, input: UpdateProductInput!): ProductResponse!
+  deleteProduct(id: ID!): ProductResponse!
 }
